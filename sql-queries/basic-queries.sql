@@ -203,3 +203,115 @@ SELECT MAX(salary) as total_salary,dept_id
 FROM emp
 GROUP BY dept_id 
 HAVING total_salary > 75000 ;
+
+-- ==========================================
+-- ORDER BY QUERIES
+-- ==========================================
+
+-- 31. Select all employees ordered by their salary in ascending order.
+
+SELECT *
+FROM emp
+ORDER BY salary ;
+
+-- 32. Select all employees ordered by their age in descending order.
+
+SELECT *
+FROM emp
+ORDER BY age DESC ;
+
+-- 33. Select all employees ordered by their hire date in ascending order.
+
+SELECT * 
+FROM emp
+ORDER BY hire_date ;
+
+-- 34. Select employees ordered by their department and then by their salary.
+
+SELECT * FROM emp
+ORDER BY dept_id ASC, salary ASC;
+
+-- 35. Select departments ordered by the total salary of their employees.
+
+SELECT SUM(SALARY) as total_salary_by_dept
+FROM emp
+GROUP BY dept_id
+ORDER BY total_salary_by_dept ;
+
+-- ==========================================
+-- JOIN QUERIES
+-- ==========================================
+
+-- 36. Select employee names along with their department names.
+
+SELECT e.emp_id,e.name,d.name
+FROM emp e
+JOIN dept d
+ON e.dept_id=d.dept_id ;
+
+-- 37. Select project names along with the department names they belong to.
+
+SELECT p.name,d.name
+FROM Project p
+JOIN dept d
+ON p.dept_id=d.dept_id ;
+
+-- 38. Select employee names and their corresponding project names.
+SELECT e.name AS employee_name, d.name AS department_name, p.name AS project_name
+FROM emp e
+JOIN dept d ON e.dept_id = d.dept_id
+JOIN Project p ON d.dept_id = p.dept_id
+ORDER BY e.name;
+
+-- 39. Select all employees and their departments, including those without a department.
+
+SELECT e.emp_id,e.name,d.name
+FROM emp e
+LEFT JOIN dept d
+ON e.dept_id=d.dept_id ;
+
+-- 40. Select all departments and their employees, including departments without employees.
+
+SELECT e.emp_id,e.name,d.name
+FROM emp e
+RIGHT JOIN dept d
+ON e.dept_id=d.dept_id ;
+
+-- 41. Select employees who are not assigned to any project.
+
+SELECT e.name
+FROM emp e
+LEFT JOIN Project p
+ON e.dept_id=p.dept_id 
+WHERE p.project_id=NULL ;
+
+-- 42. Select employees and the number of projects their department is working on.
+
+SELECT COUNT(p.project_id) as no_of_proj,e.dept_id,e.name
+FROM emp e
+JOIN Project p
+ON e.dept_id=p.dept_id 
+GROUP BY e.dept_id,e.name ;
+
+-- 43. Select the departments that have no employees.
+
+SELECT d.name 
+FROM dept d
+LEFT JOIN emp e ON d.dept_id = e.dept_id
+WHERE e.emp_id IS NULL;
+
+-- 44. Select employee names who share the same department with 'John Doe'.
+
+SELECT name 
+FROM emp 
+WHERE dept_id = (SELECT dept_id FROM emp WHERE name = 'John Doe')
+  AND name != 'John Doe';
+
+-- 45. Select the department name with the highest average salary.
+
+SELECT d.name,AVG(e.salary) AS avg_salary
+FROM emp e
+JOIN dept d
+ON e.dept_id=d.dept_id 
+GROUP BY e.dept_id
+ORDER BY avg_salary DESC LIMIT 1 ;
