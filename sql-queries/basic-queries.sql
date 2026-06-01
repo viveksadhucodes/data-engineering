@@ -315,3 +315,82 @@ JOIN dept d
 ON e.dept_id=d.dept_id 
 GROUP BY e.dept_id
 ORDER BY avg_salary DESC LIMIT 1 ;
+
+-- ==========================================
+-- NESTED AND CORRELATED QUERIES
+-- ==========================================
+
+-- 46. Select the employee with the highest salary.
+
+SELECT name,salary
+FROM emp 
+WHERE salary = (SELECT MAX(salary) FROM emp) ;
+
+-- 47. Select employees whose salary is above the average salary.
+
+SELECT name,salary
+FROM emp 
+WHERE salary >(SELECT AVG(salary) FROM emp) ;
+
+-- 48. Select the second highest salary from the Employee table.
+
+SELECT name,salary
+FROM emp 
+WHERE salary >(SELECT AVG(salary) FROM emp) 
+ORDER BY salary LIMIT 2 ;
+
+-- 49. Select the department with the most employees.
+
+SELECT d.name,COUNT(emp_id) as emp_cnt 
+FROM emp e
+JOIN dept d
+ON d.dept_id=e.dept_id 
+GROUP BY d.dept_id 
+ORDER BY emp_cnt DESC LIMIT 1 ;
+
+-- 50. Select employees who earn more than the average salary of their department.
+
+SELECT e1.name
+FROM emp e1
+WHERE e1.salary > (
+    SELECT AVG(e2.salary) 
+    FROM emp e2 
+    WHERE e2.dept_id = e1.dept_id
+);
+
+-- 51. Select the nth highest salary (for example, 3rd highest).
+
+SELECT DISTINCT salary 
+FROM emp 
+ORDER BY salary DESC 
+LIMIT 2, 1;
+
+-- 52. Select employees who are older than all employees in the HR department.
+
+SELECT name
+FROM emp
+WHERE age > ( SELECT MAX(age) FROM emp e JOIN dept d ON e.dept_id = d.dept_id WHERE d.name = 'HR' );
+
+-- 53. Select departments where the average salary is greater than 55000.
+
+SELECT dept_id, AVG(salary) AS avg_sal
+FROM emp
+GROUP BY dept_id
+HAVING avg_sal > 55000;
+
+-- 54. Select employees who work in a department with at least 2 projects.
+
+SELECT name 
+FROM emp 
+WHERE dept_id IN (
+    SELECT dept_id 
+    FROM Project 
+    GROUP BY dept_id 
+    HAVING COUNT(project_id) >= 2
+);
+
+-- 55. Select employees who were hired on the same date as 'Jane Smith'.
+
+SELECT name
+FROM emp 
+WHERE hire_date = (SELECT hire_date FROM emp WHERE name='Jane Smith' ) ;
