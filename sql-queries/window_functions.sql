@@ -79,3 +79,87 @@ WITH cte AS (
 SELECT *
 FROM cte
 WHERE rn = 1;
+
+-- Q11: Display each employee along with the salary of the employee hired immediately before them.
+-- Order by hire_date.
+
+SELECT *,
+	   LAG(salary) OVER(ORDER BY hire_date) as prev_salary 
+       FROM emp ;
+
+-- Q12: Display each employee along with the salary of the employee hired immediately after them.
+-- Order by hire_date.
+
+SELECT *,
+	   LEAD(salary) OVER(ORDER BY hire_date) as prev_salary 
+       FROM emp ;
+
+-- Q13: Show salary growth compared to the previously hired employee.
+-- (Current Salary - Previous Salary)
+
+SELECT *,salary-
+	   LAG(salary) OVER() as diff 
+       FROM emp ;
+
+-- Q14: Find employees whose salary is greater than the salary of the previously hired employee.
+WITH cte AS (
+SELECT *,salary-
+	   LAG(salary) OVER() as diff 
+       FROM emp 
+  )
+SELECT * 
+FROM cte 
+WHERE salary > diff ;
+
+-- Q15: Calculate a running total of salaries based on hire_date.
+
+SELECT *,
+       SUM(salary)
+       OVER(ORDER BY hire_date) AS running_total
+FROM emp;
+
+-- Q16: Calculate a running average salary based on hire_date.
+
+SELECT *,
+       AVG(salary)
+       OVER(ORDER BY hire_date) AS running_total
+FROM emp;
+
+-- Q17: Calculate the cumulative salary paid within each department.
+-- Order by hire_date within each department.
+
+SELECT *,
+       SUM(salary)
+       OVER(
+           PARTITION BY dept_id
+           ORDER BY hire_date
+       ) AS cumulative_salary
+FROM emp ;
+
+-- Q18: Rank departments based on their total salary expenditure.
+-- Use window functions wherever possible.
+
+WITH cte AS 
+	( SELECT dept_id,SUM(salary) total_sal
+     FROM emp
+     GROUP BY dept_id )
+SELECT *,RANK() OVER(ORDER BY total_sal ) AS rn
+FROM cte ;
+
+-- Q19: Divide all employees into 4 salary buckets using NTILE().
+-- Highest salaries should belong to Bucket 1.
+
+SELECT *,
+       NTILE(4)
+       OVER(ORDER BY salary DESC) bucket
+FROM emp ;
+
+-- Q20: Find the second-highest salary employee in every department.
+
+WITH cte AS (
+  SELECT *,
+  		DENSE_RANK() OVER(PARTITION BY dept_id ORDER BY salary DESC) as ds
+  		FROM emp )
+SELECT *
+FROM cte
+WHERE ds =2 ;
