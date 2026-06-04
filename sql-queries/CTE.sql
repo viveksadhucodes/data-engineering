@@ -1,3 +1,50 @@
+-- Create Department Table
+CREATE TABLE dept (
+    dept_id INT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL
+);
+
+-- Create Employee Table
+CREATE TABLE emp (
+    emp_id INT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    age INT,
+    salary DECIMAL(10, 2),
+    dept_id INT,
+    hire_date DATE
+    
+);
+
+-- Create Project Table
+CREATE TABLE pro (
+    project_id INT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    dept_id INT
+);
+
+-- Insert values into Department Table
+INSERT INTO dept (dept_id, name) VALUES
+(1, 'IT'),
+(2, 'HR'),
+(3, 'Finance'),
+(4, 'Marketing');
+
+-- Insert values into Employee Table
+INSERT INTO emp (emp_id, name, age, salary, dept_id, hire_date) VALUES
+(1, 'John Doe', 28, 50000.00, 1, '2020-01-15'),
+(2, 'Jane Smith', 34, 60000.00, 2, '2019-07-23'),
+(3, 'Bob Brown', 45, 80000.00, 1, '2018-02-12'),
+(4, 'Alice Blue', 25, 45000.00, 3, '2021-03-22'),
+(5, 'Charlie P.', 29, 50000.00, 2, '2019-12-01');
+
+-- Insert values into Project Table
+INSERT INTO pro (project_id, name, dept_id) VALUES
+(1, 'Project Alpha', 1),
+(2, 'Project Beta', 2),
+(3, 'Project Gamma', 1),
+(4, 'Project Delta', 3),
+(5, 'Project Epsilon', 4);
+
 -- Q1: Create a CTE that returns all employees and display its contents.
 
 WITH cte AS (
