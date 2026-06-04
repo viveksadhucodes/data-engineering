@@ -48,3 +48,133 @@ WITH avg_sal AS (
 SELECT *
 FROM emp
 WHERE salary > (SELECT avg_salary FROM avg_sal);
+
+-- Q9: Using a CTE, find employees earning more than their department average salary.
+
+WITH dept_avg AS (
+    SELECT dept_id,
+           AVG(salary) AS avg_salary
+    FROM emp
+    GROUP BY dept_id
+)
+SELECT e.*
+FROM emp e
+JOIN dept_avg d
+ON e.dept_id = d.dept_id
+WHERE e.salary > d.avg_salary;
+
+-- Q10: Using a CTE, find the highest-paid employee in each department.
+
+WITH ranked_emp AS (
+    SELECT *,
+           ROW_NUMBER() OVER(
+               PARTITION BY dept_id
+               ORDER BY salary DESC
+           ) rn
+    FROM emp
+)
+SELECT *
+FROM ranked_emp
+WHERE rn = 1;
+
+-- Q11: Using a CTE and ROW_NUMBER(), find the second-highest-paid employee in each department.
+
+WITH ranked_emp AS (
+    SELECT *,
+           ROW_NUMBER() OVER(
+               PARTITION BY dept_id
+               ORDER BY salary DESC
+           ) rn
+    FROM emp
+)
+SELECT *
+FROM ranked_emp
+WHERE rn = 2;
+
+-- Q12: Using a CTE and DENSE_RANK(), find the third-highest salary in each department.
+
+WITH ranked_emp AS (
+    SELECT *,
+           DENSE_RANK() OVER(
+               PARTITION BY dept_id
+               ORDER BY salary DESC
+           ) rn
+    FROM emp
+)
+SELECT *
+FROM ranked_emp
+WHERE rn = 1;
+
+-- Q13: Using a CTE and RANK(), rank employees department-wise based on salary.
+
+WITH cte AS ( SELECT * , RANK() OVER(PARTITION BY dept_id ORDER BY salary ) AS rn 
+             FROM emp )
+SELECT * from cte WHERE rn=1;
+
+-- Q14: Using a CTE and LAG(), display each employee along with the previous employee's salary based on hire_date.
+
+WITH cte AS ( SELECT * ,
+             LAG(salary) OVER( ORDER BY hire_date) AS rn FROM emp)
+SELECT * from cte ;
+
+-- Q15: Using a CTE and LEAD(), display each employee along with the next employee's salary based on hire_date.
+
+WITH cte AS ( SELECT * ,
+             LEAD(salary) OVER( ORDER BY hire_date) AS rn FROM emp)
+SELECT * from cte ;
+
+-- Q16: Using a CTE, calculate a running total of salaries ordered by hire_date.
+
+WITH cte AS ( SELECT * ,
+             SUM(salary) OVER( ORDER BY hire_date) AS rn FROM emp)
+SELECT * from cte ;
+
+-- Q17: Using multiple CTEs, find employees whose salary is greater than both:
+-- (a) company average salary
+-- (b) department average salary
+
+WITH cte1 AS ( SELECT AVG(salary) avg_sal FROM emp ) , dept_avg AS ( SELECT dept_id,AVG(salary) ds FROM emp GROUP by dept_id ) 
+
+SELECT * 
+FROM emp e
+JOIN dept_avg d 
+ON e.dept_id=d.dept_id
+WHERE e.salary > ( SELECT avg_sal FROM cte1 )
+AND e.salary > d.ds ;
+
+-- Q18: Using multiple CTEs, find the department with the highest total salary expenditure.
+
+WITH dept_sal AS (
+    SELECT dept_id,
+           SUM(salary) total_salary
+    FROM emp
+    GROUP BY dept_id
+)
+SELECT *
+FROM dept_sal
+ORDER BY total_salary DESC
+LIMIT 1;
+
+-- Q19: Using multiple CTEs, rank departments based on total salary expenditure.
+
+WITH dept_sal AS (
+    SELECT dept_id,
+           SUM(salary) total_salary
+    FROM emp
+    GROUP BY dept_id
+)
+SELECT *,RANK() OVER(ORDER BY total_salary) AS rn 
+FROM dept_sal;
+
+-- Q20: Using multiple CTEs and window functions, find the top 3 highest-paid employees in every department.
+WITH ranked_emp AS (
+    SELECT *,
+           ROW_NUMBER() OVER(
+               PARTITION BY dept_id
+               ORDER BY salary DESC
+           ) rn
+    FROM emp
+)
+SELECT *
+FROM ranked_emp
+WHERE rn <= 3;
